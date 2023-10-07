@@ -1,5 +1,6 @@
 from django.contrib import admin
-from core.models import Category, Budget, FinancialEntry, BudgetUser
+
+from core.models import Budget, BudgetUser, Category, FinancialEntry
 
 # Register your models here.
 
