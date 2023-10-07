@@ -9,6 +9,9 @@ class Budget(models.Model):
     name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-created_at"]
+
     def __str__(self):
         return f"Budget: {self.name} ({self.user.username})"
 
@@ -19,6 +22,9 @@ class Category(models.Model):
     budget = models.ForeignKey(
         Budget, on_delete=models.CASCADE, related_name="categories"
     )
+
+    class Meta:
+        ordering = ["name"]
 
     def __str__(self):
         return f"Category: {self.name}"
@@ -40,6 +46,9 @@ class FinancialEntry(models.Model):
     date = models.DateField()
     entry_type = models.CharField(max_length=10, choices=ENTRY_TYPES)
 
+    class Meta:
+        ordering = ["-date"]
+
     def __str__(self):
         return f"{self.entry_type}: {self.amount} ({self.date})"
 
@@ -55,6 +64,7 @@ class BudgetUser(models.Model):
 
     class Meta:
         unique_together = ("owner", "visitor")
+        ordering = ["owner", "visitor"]
 
     def __str__(self):
-        return f"{self.user.username} in {self.budget.name}"
+        return f"{self.owner.username} shared {self.budget.name} to {self.visitor.username}"
