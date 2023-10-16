@@ -3,6 +3,8 @@ from urllib.parse import urlencode
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
+from django.urls import reverse
+from rest_framework import status
 
 from core.models import Budget, Category
 
@@ -30,8 +32,8 @@ class TestListCategoriesView(TestCase):
         return super().tearDownClass()
 
     def test_list_categories_unauthenticated(self):
-        response = self.client.get("/categories/")
-        self.assertEqual(response.status_code, 403)
+        response = self.client.get(reverse("categories-list"))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             response.json(),
             {"detail": "Authentication credentials were not provided."},
@@ -39,8 +41,8 @@ class TestListCategoriesView(TestCase):
 
     def test_list_categories_authenticated(self):
         self.client.login(username="test", password="test")
-        response = self.client.get("/categories/")
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse("categories-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response.json(),
             {
@@ -84,8 +86,10 @@ class TestSimpleHTTPMethodsCategoriesView(TestCase):
         return super().tearDownClass()
 
     def test_post_categories_unauthenticated(self):
-        response = self.client.post("/categories/", {"name": "test", "budget": 1})
-        self.assertEqual(response.status_code, 403)
+        response = self.client.post(
+            reverse("categories-list"), {"name": "test", "budget": 1}
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             response.json(),
             {"detail": "Authentication credentials were not provided."},
@@ -94,12 +98,12 @@ class TestSimpleHTTPMethodsCategoriesView(TestCase):
     def test_post_categories_authenticated(self):
         self.client.login(username="test", password="test")
         response = self.client.post(
-            "/categories/",
+            reverse("categories-list"),
             {"name": "test", "budget": "http://testserver/budgets/1/"},
             content_type="application/json",
             format="json",
         )
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
             response.json(),
             {
@@ -113,8 +117,10 @@ class TestSimpleHTTPMethodsCategoriesView(TestCase):
         )
 
     def test_put_categories_unauthenticated(self):
-        response = self.client.put("/categories/1/", {"name": "test", "budget": 1})
-        self.assertEqual(response.status_code, 403)
+        response = self.client.put(
+            reverse("categories-detail", args=[1]), {"name": "test", "budget": 1}
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             response.json(),
             {"detail": "Authentication credentials were not provided."},
@@ -123,12 +129,12 @@ class TestSimpleHTTPMethodsCategoriesView(TestCase):
     def test_put_categories_authenticated(self):
         self.client.login(username="test", password="test")
         response = self.client.put(
-            "/categories/1/",
+            reverse("categories-detail", args=[1]),
             data=urlencode({"name": "test", "budget": "http://testserver/budgets/1/"}),
             content_type="application/x-www-form-urlencoded",  # https://github.com/jgorset/django-respite/issues/38
             format="json",
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response.json(),
             {
@@ -142,8 +148,8 @@ class TestSimpleHTTPMethodsCategoriesView(TestCase):
         )
 
     def test_delete_categories_unauthenticated(self):
-        response = self.client.delete("/categories/1/")
-        self.assertEqual(response.status_code, 403)
+        response = self.client.delete(reverse("categories-detail", args=[1]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             response.json(),
             {"detail": "Authentication credentials were not provided."},
@@ -151,5 +157,5 @@ class TestSimpleHTTPMethodsCategoriesView(TestCase):
 
     def test_delete_categories_authenticated(self):
         self.client.login(username="test", password="test")
-        response = self.client.delete("/categories/1/")
-        self.assertEqual(response.status_code, 204)
+        response = self.client.delete(reverse("categories-detail", args=[1]))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

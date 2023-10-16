@@ -27,16 +27,37 @@ services:
 
   django:
     <<: *backend-base
-    entrypoint: ['sh', 'entrypoints/app.sh']
-    container_name: pythondev-django
-    ports:
-      - "8000:8000"
-    image: pythondev-django
-    restart: unless-stopped
+    command:
+    - /bin/bash
+    - -c
+    - |
+      set -e
+      while ! nc -z db 5432; do
+        sleep 0.1
+      done
+      echo "Runserver starting"
+      python manage.py runserver --insecure 0.0.0.0:8000
+      container_name: pythondev-django
+      ports:
+        - "8000:8000"
+      image: pythondev-django
+      restart: unless-stopped
 
   migrate:
     <<: *backend-base
-    entrypoint: ['sh', 'entrypoints/migrate.sh']
+    command:
+      - /bin/bash
+      - -c
+      - |
+        set -e
+        while ! nc -z db 5432; do
+          sleep 0.1
+        done
+        echo "Running migrations"
+        python manage.py makemigrations
+        python manage.py migrate
+        echo "Loading fixtures"
+        python manage.py loaddata core/fixtures/db.json
     container_name: pythondev-migrate
     image: pythondev-migrate
     restart: 'no'

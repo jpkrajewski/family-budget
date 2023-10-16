@@ -1,5 +1,6 @@
 from urllib.parse import urlencode
 
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
@@ -38,7 +39,7 @@ class TestSimpleHTTPMethodsFinancialEntriesView(TestCase):
         return super().tearDownClass()
 
     def test_list_financial_entries_unauthenticated(self):
-        response = self.client.get("/financial-entries/")
+        response = self.client.get(reverse("financial-entries-list"))
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
             response.json(),
@@ -47,7 +48,7 @@ class TestSimpleHTTPMethodsFinancialEntriesView(TestCase):
 
     def test_list_financial_entries_authenticated(self):
         self.client.login(username="test", password="test")
-        response = self.client.get("/financial-entries/")
+        response = self.client.get(reverse("financial-entries-list"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.json(),
@@ -71,7 +72,7 @@ class TestSimpleHTTPMethodsFinancialEntriesView(TestCase):
         )
 
     def test_get_financial_entry_unauthenticated(self):
-        response = self.client.get("/financial-entries/1/")
+        response = self.client.get(reverse("financial-entries-detail", args=[1]))
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
             response.json(),
@@ -80,7 +81,7 @@ class TestSimpleHTTPMethodsFinancialEntriesView(TestCase):
 
     def test_get_financial_entry_authenticated(self):
         self.client.login(username="test", password="test")
-        response = self.client.get("/financial-entries/1/")
+        response = self.client.get(reverse("financial-entries-detail", args=[1]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.json(),

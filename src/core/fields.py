@@ -1,12 +1,13 @@
 from rest_framework import serializers
+from core.models import FinancialEntry
 
 
 class EntriesBilanceField(serializers.Field):
     def to_representation(self, value):
         bilance = 0
         for entry in value.all():
-            if entry.entry_type == "Income":
+            if FinancialEntry.INCOME == entry.entry_type:
                 bilance += entry.amount
-            else:
+            if FinancialEntry.EXPENSE == entry.entry_type:
                 bilance -= entry.amount
         return bilance

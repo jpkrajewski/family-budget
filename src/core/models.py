@@ -31,9 +31,12 @@ class Category(models.Model):
 
 
 class FinancialEntry(models.Model):
+    INCOME = "Income"
+    EXPENSE = "Expense"
+
     ENTRY_TYPES = (
-        ("Income", "Income"),
-        ("Expense", "Expense"),
+        (INCOME, "Income"),
+        (EXPENSE, "Expense"),
     )
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="financial_entries"
@@ -43,7 +46,7 @@ class FinancialEntry(models.Model):
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
-    date = models.DateField()
+    date = models.DateTimeField()
     entry_type = models.CharField(max_length=10, choices=ENTRY_TYPES)
 
     class Meta:
