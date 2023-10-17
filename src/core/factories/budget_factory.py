@@ -14,7 +14,7 @@ class BudgetFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(UserFactory)
     name = factory.Faker("word")
-    created_at = factory.Faker("date", end_datetime=datetime.now())
+    created_at = factory.Faker("date")
 
     # title = factory.Faker("company")
     # publisher = factory.SubFactory(UserFactory)
